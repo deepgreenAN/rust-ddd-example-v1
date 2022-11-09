@@ -1,0 +1,16 @@
+[package]
+name = "ddd_example"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dialoguer = "0.10.2"
+uuid = {version = "1.2.1", features = ['v4']}
+
+[dev-dependencies]
+assert_matches = "1.5.0"
+fake = {version = "2.5.0", features = ['derive', 'uuid']}
+mockall = "0.11.3"
+rand = "0.8.5"
