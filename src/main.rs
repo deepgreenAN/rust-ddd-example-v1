@@ -11,15 +11,14 @@ use application::requests::{
     CreateClientUseCaseRequest, EditClientUseCaseRequest, GetClientUseCaseRequest, NoneRequest,
 };
 use application::Handler;
+use clap::Parser;
 use dialoguer::{Input, Select};
 use infrastructure::InMemoryClientRepository;
 use std::error::Error;
 use std::rc::Rc;
 use uuid::Uuid;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let repository = Rc::new(InMemoryClientRepository::new_with_clients());
-
+fn app<T: domain::ClientRepository>(repository: Rc<T>) -> Result<(), Box<dyn Error>> {
     let crate_client_use_case_handler = CreateClientUseCaseHandler::new(Rc::clone(&repository));
     let edit_client_use_case_handler = EditClientUseCaseHandler::new(Rc::clone(&repository));
     let get_client_use_case_handler = GetClientUseCaseHandler::new(Rc::clone(&repository));
@@ -126,5 +125,23 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
     }
+    Ok(())
+}
+
+#[derive(Parser)]
+struct Cli {
+    /// with some samples
+    #[arg(long)]
+    sample: bool,
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let cli = Cli::parse();
+    let repository = match cli.sample {
+        true => Rc::new(InMemoryClientRepository::new_with_clients()),
+        false => Rc::new(InMemoryClientRepository::new()),
+    };
+
+    app(repository)?;
     Ok(())
 }

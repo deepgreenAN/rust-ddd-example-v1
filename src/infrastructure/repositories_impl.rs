@@ -8,7 +8,6 @@ pub struct InMemoryClientRepository {
 }
 
 impl InMemoryClientRepository {
-    #[allow(dead_code)]
     pub fn new() -> Self {
         Self {
             clients: RefCell::new(HashMap::new()),
