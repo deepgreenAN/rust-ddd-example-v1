@@ -19,14 +19,11 @@ impl ClientRepository for InMemoryClientRepository {
     fn by_id(&self, id: Uuid) -> Result<Client, String> {
         match self.clients.borrow().get(&id) {
             Some(client) => Ok(client.clone()),
-            None => Err("No client found for geven ID".to_string()),
+            None => Err("No client found for given ID".to_string()),
         }
     }
     fn save(&self, client: Client) {
         self.clients.borrow_mut().insert(client.id(), client);
-    }
-    fn next_identity(&self) -> Uuid {
-        Uuid::new_v4()
     }
     fn all(&self) -> Vec<Client> {
         let clients = self.clients.borrow();
@@ -43,10 +40,8 @@ impl InMemoryClientRepository {
         let repository = Self {
             clients: RefCell::new(HashMap::new()),
         };
-        let id_1 = repository.next_identity();
-        repository.save(Client::new(id_1, "Taro".to_string(), "Tokyo".to_string()));
-        let id_2 = repository.next_identity();
-        repository.save(Client::new(id_2, "Jiro".to_string(), "Tokyo".to_string()));
+        repository.save(Client::new("Taro".to_string(), "Tokyo".to_string()));
+        repository.save(Client::new("Jiro".to_string(), "Tokyo".to_string()));
         repository
     }
 }
@@ -65,8 +60,7 @@ mod test {
         let client_number = 10;
 
         for _ in 0..client_number {
-            let id = repository.next_identity();
-            let client = Client::new(id, Faker.fake::<String>(), Faker.fake::<String>());
+            let client = Client::new(Faker.fake::<String>(), Faker.fake::<String>());
             vec_clients.push(client.clone());
             repository.save(client);
         }
@@ -77,7 +71,7 @@ mod test {
         }
 
         // by_idでエラーのとき
-        assert_matches!(repository.by_id(repository.next_identity()), Err(_));
+        assert_matches!(repository.by_id(Faker.fake()), Err(_));
 
         // allとvec_clientsを比較
         vec_clients.sort_by_key(|client| client.id());

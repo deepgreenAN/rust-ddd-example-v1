@@ -8,6 +8,5 @@ use mockall::automock;
 pub trait ClientRepository {
     fn by_id(&self, id: Uuid) -> Result<Client, String>;
     fn save(&self, client: Client);
-    fn next_identity(&self) -> Uuid;
     fn all(&self) -> Vec<Client>;
 }

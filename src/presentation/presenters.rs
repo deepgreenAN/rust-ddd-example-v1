@@ -35,13 +35,12 @@ mod test {
     use crate::application::dtos::{ClientDto, DtoList};
     use crate::domain::Client;
     use fake::faker::{address::en::CityName, name::en::Name};
-    use fake::{Fake, Faker};
+    use fake::Fake;
     use std::fmt::Write;
 
     #[test]
     fn client_dto_print() {
-        let client_dto: ClientDto =
-            Client::new(Faker.fake(), Name().fake(), CityName().fake()).into();
+        let client_dto: ClientDto = Client::new(Name().fake(), CityName().fake()).into();
         assert_eq!(
             client_dto.to_string(),
             format!(
@@ -62,7 +61,7 @@ mod test {
     #[test]
     fn client_dto_list_print() {
         let dto_lists = (0..2)
-            .map(|_| Client::new(Faker.fake(), Name().fake(), CityName().fake()).into())
+            .map(|_| Client::new(Name().fake(), CityName().fake()).into())
             .collect::<DtoList<ClientDto>>();
 
         let mut expected_string = String::new();

@@ -12,7 +12,8 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(id: Uuid, name: String, location: String) -> Self {
+    pub fn new(name: String, location: String) -> Self {
+        let id = Uuid::new_v4();
         Self { id, name, location }
     }
     pub fn id(&self) -> Uuid {
@@ -33,18 +34,15 @@ impl Client {
 #[cfg(test)]
 mod test {
     use fake::{Fake, Faker};
-    use uuid::Uuid;
 
     use super::Client;
     #[test]
     fn create_client() {
-        let id = Faker.fake::<Uuid>();
         let name = Faker.fake::<String>();
         let location = Faker.fake::<String>();
 
-        let client = Client::new(id, name.clone(), location.clone());
+        let client = Client::new(name.clone(), location.clone());
 
-        assert_eq!(id, client.id());
         assert_eq!(&name, client.name());
         assert_eq!(&location, client.location());
     }

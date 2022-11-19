@@ -19,8 +19,7 @@ impl<T: ClientRepository> Handler<T> for CreateClientUseCaseHandler<T> {
         Self { client_repo }
     }
     fn execute(&self, request: Self::Request) -> Self::Output {
-        let id = self.client_repo.next_identity();
-        let client = Client::new(id, request.name, request.location);
+        let client = Client::new(request.name, request.location);
         self.client_repo.save(client);
     }
 }
@@ -106,24 +105,23 @@ mod test {
 
     #[test]
     fn create_client_use_case_handler_execute() {
-        let client = Faker.fake::<Client>();
-        let id = client.id();
-
         let mut mock_repo = MockClientRepository::new();
+        let name = Name().fake::<String>();
+        let location = CityName().fake::<String>();
 
-        mock_repo.expect_next_identity().times(1).return_const(id);
+        let cloned_name = name.clone();
+        let cloned_location = location.clone();
 
         mock_repo
             .expect_save()
-            .withf(move |inner_client| inner_client.id() == id)
+            .withf(move |client| {
+                client.name() == cloned_name && client.location() == cloned_location
+            })
             .times(1)
             .return_const(());
 
         let create_client_use_case_handler = CreateClientUseCaseHandler::new(Rc::new(mock_repo));
-        create_client_use_case_handler.execute(CreateClientUseCaseRequest::new(
-            Name().fake::<String>(),
-            CityName().fake::<String>(),
-        ))
+        create_client_use_case_handler.execute(CreateClientUseCaseRequest::new(name, location))
     }
 
     #[test]
@@ -146,7 +144,7 @@ mod test {
     }
 
     #[test]
-    fn get_client_use_case_hndler_execute_err() {
+    fn get_client_use_case_handler_execute_err() {
         let client = Faker.fake::<Client>();
         let id = client.id();
 
@@ -188,7 +186,6 @@ mod test {
         let new_name = Name().fake::<String>();
         let new_location = Name().fake::<String>();
 
-        let expeted_client = Client::new(client.id(), new_name.clone(), new_location.clone());
         let mut mock_repo = MockClientRepository::new();
         mock_repo
             .expect_by_id()
@@ -196,9 +193,14 @@ mod test {
             .times(1)
             .return_const(Ok(client.clone()));
 
+        let cloned_new_name = new_name.clone();
+        let cloned_new_location = new_location.clone();
+
         mock_repo
             .expect_save()
-            .with(predicate::eq(expeted_client))
+            .withf(move |client| {
+                client.name() == cloned_new_name && client.location() == cloned_new_location
+            })
             .times(1)
             .return_const(());
 
